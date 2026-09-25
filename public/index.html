@@ -1,1 +1,1013 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0" />
+  <title>Bursa LRF & Spin Raporu | FishFleb</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" />
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
+    body { font-family: 'Inter', sans-serif; background: #0b1220; }
+    .card { background: linear-gradient(145deg, #111827 0%, #0f172a 100%); border: 1px solid #1e293b; }
+    .activity-dusuk { background: #166534; color: #bbf7d0; }
+    .activity-orta { background: #854d0e; color: #fef08a; }
+    .activity-yuksek { background: #991b1b; color: #fecaca; }
+    .table-row:hover { background: #1e293b; }
+    .bg-header {
+      background: linear-gradient(rgba(11,18,32,0.85), rgba(11,18,32,0.95)),
+                  url('https://images.unsplash.com/photo-1507525428034-b723cf961d3e?w=1200') center/cover;
+    }
+    .spot-btn.active { background: #0891b2; color: white; }
+    .region-btn.active { background: #0e7490; color: white; }
+    .current-hour-row { background: rgba(234, 179, 8, 0.25) !important; border-left: 3px solid #eab308; }
+  </style>
+</head>
+<body class="text-gray-100 min-h-screen pb-20">
 
+  <!-- KİLİTLİ EKRAN yok - kapalıyken veriler tire ile gösterilir -->
+
+  <!-- HEADER -->
+  <header class="bg-header border-b border-slate-700">
+    <div class="max-w-6xl mx-auto px-4 py-5">
+      <div class="flex flex-wrap items-center justify-between gap-3">
+        <div>
+          <div class="flex items-center gap-2 text-xl md:text-3xl font-extrabold">
+            <span class="text-red-500"><i class="fas fa-map-marker-alt"></i></span>
+            <span id="location-name">GEMLİK</span>
+          </div>
+          <p class="text-slate-400 text-sm mt-0.5" id="spot-note">24 Saatlik Hava, Deniz ve Balıkçılık Raporu</p>
+        </div>
+        <div class="text-right relative">
+          <div class="flex items-center gap-2 justify-end">
+            <div>
+              <div class="flex items-center gap-2 text-base md:text-lg font-semibold">
+                <i class="far fa-calendar-alt text-blue-400"></i>
+                <span id="current-date">—</span>
+              </div>
+              <p class="text-slate-400 text-sm" id="current-day">—</p>
+            </div>
+            <button id="menu-btn" onclick="toggleMenu()" class="ml-2 p-2 rounded-lg bg-slate-800/80 border border-slate-600 hover:bg-slate-700" title="Menü">
+              <div class="w-5 flex flex-col gap-1">
+                <span class="block h-0.5 bg-slate-300 rounded"></span>
+                <span class="block h-0.5 bg-slate-300 rounded"></span>
+                <span class="block h-0.5 bg-slate-300 rounded"></span>
+              </div>
+            </button>
+          </div>
+          <div id="menu-dropdown" class="hidden absolute right-0 top-full mt-2 z-50 card rounded-xl border border-slate-600 shadow-xl min-w-[160px] overflow-hidden">
+            <button onclick="toggleAdminLogin(); toggleMenu();" class="w-full text-left px-4 py-3 text-sm hover:bg-slate-700 text-slate-200">
+              <i class="fas fa-user-shield text-cyan-400 mr-2"></i> Yönetici Girişi
+            </button>
+          </div>
+        </div>
+        <div class="bg-slate-800/80 px-3 py-2 rounded-xl border border-slate-600">
+          <div class="text-xs text-slate-400">BURSA</div>
+          <div class="font-bold text-cyan-400 text-sm">LRF & SPİN</div>
+        </div>
+      </div>
+
+      <div class="grid grid-cols-2 md:grid-cols-4 gap-2 mt-5">
+        <div class="card rounded-xl p-2.5 flex items-center gap-2">
+          <i class="fas fa-sun text-yellow-400"></i>
+          <div>
+            <div class="text-[10px] text-slate-400">Gün Doğumu</div>
+            <div class="font-bold text-sm" id="sunrise">—</div>
+          </div>
+        </div>
+        <div class="card rounded-xl p-2.5 flex items-center gap-2">
+          <i class="fas fa-moon text-indigo-300"></i>
+          <div>
+            <div class="text-[10px] text-slate-400">Gün Batımı</div>
+            <div class="font-bold text-sm" id="sunset">—</div>
+          </div>
+        </div>
+        <div class="card rounded-xl p-2.5 flex items-center gap-2">
+          <i class="fas fa-moon text-slate-300"></i>
+          <div>
+            <div class="text-[10px] text-slate-400">Ay Durumu</div>
+            <div class="font-bold text-sm" id="moon-phase">—</div>
+          </div>
+        </div>
+        <div class="card rounded-xl p-2.5 flex items-center gap-2">
+          <i class="fas fa-location-dot text-red-400"></i>
+          <div>
+            <div class="text-[10px] text-slate-400">Konum</div>
+            <div class="font-bold text-xs" id="header-loc">Gemlik / BURSA</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <main class="max-w-6xl mx-auto px-4 py-5 space-y-5">
+
+    <!-- BÖLGE SEÇİCİ -->
+    <div id="main-content-area">
+    <div>
+      <div class="text-xs text-slate-500 mb-1.5 font-medium">BÖLGE SEÇ</div>
+      <div id="region-buttons" class="flex flex-wrap gap-2 mb-3">
+        <!-- JS ile doldurulacak -->
+      </div>
+      <div class="text-xs text-slate-500 mb-1.5 font-medium">MERA / NOKTA</div>
+      <div id="spot-buttons" class="flex flex-wrap gap-2">
+        <!-- JS ile doldurulacak -->
+      </div>
+      <div class="text-xs text-slate-500 mb-1.5 mt-3 font-medium">TARİH SEÇ</div>
+      <div id="date-buttons" class="flex flex-wrap gap-2">
+        <!-- JS ile doldurulacak -->
+      </div>
+    </div>
+
+    <!-- GÜNÜN EN VERİMLİ SAATİ -->
+    <div id="best-hour-card" class="card rounded-2xl p-4 border border-amber-500/40 bg-gradient-to-r from-amber-900/20 to-transparent">
+      <div class="flex items-center justify-between flex-wrap gap-2">
+        <div>
+          <div class="text-[10px] text-amber-400 font-semibold uppercase tracking-wide">Bu mera için günün en verimli saati</div>
+          <div class="text-xl font-bold text-white mt-0.5" id="peak-hour">Hesaplanıyor...</div>
+        </div>
+        <div class="text-3xl" id="peak-fish">🐟🐟🐟</div>
+      </div>
+      <p class="text-[11px] text-slate-400 mt-2" id="peak-note">Canlı hava ve deniz verisine göre hesaplanır</p>
+    </div>
+
+    <!-- ANA KARTLAR -->
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-3">
+      <!-- Hava -->
+      <div class="card rounded-2xl p-4">
+        <h3 class="text-xs font-semibold text-slate-400 mb-2 flex items-center gap-1.5">
+          <i class="fas fa-cloud-sun text-yellow-400"></i> HAVA DURUMU
+        </h3>
+        <div class="flex items-center gap-3">
+          <div class="text-4xl" id="weather-icon">☀️</div>
+          <div>
+            <div class="text-2xl font-bold" id="temp">—°C</div>
+            <div class="text-slate-300 text-xs" id="weather-desc">—</div>
+          </div>
+        </div>
+        <div class="mt-3 space-y-1 text-xs text-slate-400">
+          <div class="flex justify-between"><span>En Yüksek</span><span id="temp-max" class="text-white">—</span></div>
+          <div class="flex justify-between"><span>En Düşük</span><span id="temp-min" class="text-white">—</span></div>
+          <div class="flex justify-between"><span>Nem</span><span id="humidity" class="text-white">—</span></div>
+          <div class="flex justify-between"><span>Yağış</span><span id="precip" class="text-white">—</span></div>
+        </div>
+      </div>
+
+      <!-- Basınç -->
+      <div class="card rounded-2xl p-4">
+        <h3 class="text-xs font-semibold text-slate-400 mb-2 flex items-center gap-1.5">
+          <i class="fas fa-gauge-high text-blue-400"></i> BASINÇ DURUMU
+        </h3>
+        <div class="text-center">
+          <div class="text-3xl font-bold text-cyan-400" id="pressure">— hPa</div>
+          <div class="text-xs text-slate-400 mt-1" id="pressure-status">—</div>
+        </div>
+        <div class="mt-3 space-y-1.5 text-xs">
+          <div>Trend: <span id="pressure-trend" class="text-white">Sabit</span></div>
+          <div class="mt-2 p-2 rounded-lg text-center font-medium text-xs" id="fish-activity-main">Balık Aktivitesi: —</div>
+        </div>
+        <p class="mt-2 text-[11px] text-slate-400" id="pressure-note">—</p>
+      </div>
+
+      <!-- Rüzgar & Dalga -->
+      <div class="card rounded-2xl p-4">
+        <h3 class="text-xs font-semibold text-slate-400 mb-2 flex items-center gap-1.5">
+          <i class="fas fa-wind text-sky-400"></i> RÜZGAR & DALGA
+        </h3>
+        <div class="space-y-2 text-xs">
+          <div><span class="text-slate-400">Yön:</span> <strong id="wind-dir">—</strong></div>
+          <div><span class="text-slate-400">Hız:</span> <strong id="wind-speed">— km/sa</strong></div>
+          <div><span class="text-slate-400">Şiddet:</span> <strong id="wind-force">—</strong></div>
+          <div class="pt-2 border-t border-slate-700">
+            <span class="text-slate-400">Dalga:</span>
+            <strong class="text-cyan-300" id="wave-height">— m</strong>
+            <span class="text-slate-500" id="wave-status">(Sakin)</span>
+          </div>
+        </div>
+        <p class="mt-2 text-[11px] text-green-400" id="wind-note">—</p>
+      </div>
+
+      <!-- Hissedilen -->
+      <div class="card rounded-2xl p-4">
+        <h3 class="text-xs font-semibold text-slate-400 mb-2 flex items-center gap-1.5">
+          <i class="fas fa-temperature-half text-orange-400"></i> HİSSEDİLEN & DENİZ
+        </h3>
+        <div class="text-2xl font-bold mb-2" id="feels-like">—°C</div>
+        <div class="space-y-1.5 text-xs text-slate-300">
+          <div><i class="fas fa-water text-cyan-400"></i> Deniz: <strong id="sea-temp" class="text-white">—°C</strong></div>
+          <div><i class="fas fa-eye text-blue-300"></i> Görüş: <strong id="visibility" class="text-white">İyi</strong></div>
+          <div><i class="fas fa-sun text-yellow-400"></i> UV: <strong id="uv" class="text-white">—</strong></div>
+        </div>
+        <p class="mt-2 text-[11px] text-amber-300"><i class="fas fa-exclamation-triangle"></i> Güneş koruyucu kullanın!</p>
+      </div>
+    </div>
+
+    <!-- SAATLİK TABLO -->
+    <div class="card rounded-2xl overflow-hidden">
+      <div class="px-4 py-3 border-b border-slate-700 flex items-center justify-between">
+        <h3 class="font-semibold text-sm flex items-center gap-2">
+          <i class="fas fa-clock text-cyan-400"></i> SAATLİK TAHMİN
+        </h3>
+      </div>
+      <div class="overflow-x-auto">
+        <table class="w-full text-xs">
+          <thead class="bg-slate-800/80 text-slate-400 uppercase text-[10px]">
+            <tr>
+              <th class="px-3 py-2 text-left">Saat Aralığı</th>
+              <th class="px-2 py-2">Hava</th>
+              <th class="px-2 py-2">Sıcaklık</th>
+              <th class="px-2 py-2">Rüzgar</th>
+              <th class="px-2 py-2">Rüzgar Hızı</th>
+              <th class="px-2 py-2">Dalga</th>
+              <th class="px-3 py-2 text-center">Balık Aktivitesi</th>
+            </tr>
+          </thead>
+          <tbody id="hourly-body" class="divide-y divide-slate-800"></tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- DETAYLAR -->
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+      <!-- LRF -->
+      <div class="card rounded-2xl p-4 border-l-4 border-cyan-500">
+        <h3 class="text-sm font-semibold text-cyan-400 mb-3 flex items-center gap-1.5">
+          <i class="fas fa-fish"></i> LRF ÖNERİLERİ
+        </h3>
+        <ul id="lrf-list" class="space-y-1.5 text-xs text-slate-300">
+          <li class="flex gap-1.5"><span class="text-cyan-400">✓</span> Gramaj: 0.5g - 5g jighead / 1-7g metal jig</li>
+          <li class="flex gap-1.5"><span class="text-cyan-400">✓</span> Silikon: 2-5 cm (Ecogear, Keitech tarzı)</li>
+          <li class="flex gap-1.5"><span class="text-cyan-400">✓</span> Renk: Beyaz, chartreuse, pembe, doğal kefal</li>
+          <li class="flex gap-1.5"><span class="text-cyan-400">✓</span> Teknik: Yavaş sarsıntılı çekiş, dip-orta su</li>
+          <li class="flex gap-1.5"><span class="text-cyan-400">✓</span> Hedef: İstavrit, mırmır, mezgit, küçük lüfer</li>
+        </ul>
+      </div>
+
+      <!-- SPİN -->
+      <div class="card rounded-2xl p-4 border-l-4 border-orange-500">
+        <h3 class="text-sm font-semibold text-orange-400 mb-3 flex items-center gap-1.5">
+          <i class="fas fa-water"></i> SPİN ÖNERİLERİ
+        </h3>
+        <ul id="spin-list" class="space-y-1.5 text-xs text-slate-300">
+          <li class="flex gap-1.5"><span class="text-orange-400">✓</span> Gramaj: 7-21g (kıyı) / 14-28g (rüzgarlı)</li>
+          <li class="flex gap-1.5"><span class="text-orange-400">✓</span> Sahte: 7-12 cm minnow, twichbait, metal jig</li>
+          <li class="flex gap-1.5"><span class="text-orange-400">✓</span> Renk: Doğal sardalya-kefal, mavi-gümüş, pembe</li>
+          <li class="flex gap-1.5"><span class="text-orange-400">✓</span> Teknik: Orta-hızlı retrieve, stop&go, twich</li>
+          <li class="flex gap-1.5"><span class="text-orange-400">✓</span> Hedef: Lüfer, çinekop, levrek, palamut</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+      <div class="card rounded-2xl p-4">
+        <h3 class="text-xs font-semibold text-slate-400 mb-3 flex items-center gap-1.5">
+          <i class="fas fa-water text-blue-400"></i> DALGA & DENİZ
+        </h3>
+        <ul class="space-y-1.5 text-xs text-slate-300" id="wave-comment">
+          <li class="flex gap-1.5"><span class="text-green-400">✓</span> Dalga boyu düşük, deniz sakin.</li>
+          <li class="flex gap-1.5"><span class="text-green-400">✓</span> Hafif rüzgar av için ideal.</li>
+          <li class="flex gap-1.5"><span class="text-green-400">✓</span> Kıyıdan LRF / spin için uygun şartlar.</li>
+        </ul>
+        <div class="mt-3 p-2.5 rounded-xl bg-slate-800 border border-slate-700">
+          <div class="text-[10px] text-amber-400 font-semibold">★ EN VERİMLİ ZAMANLAR</div>
+          <div class="font-bold text-sm text-white" id="best-hours">06:00-10:00 / 17:00-21:00</div>
+        </div>
+      </div>
+
+      <div class="card rounded-2xl p-4">
+        <h3 class="text-xs font-semibold text-slate-400 mb-3 flex items-center gap-1.5">
+          <i class="fas fa-info-circle text-purple-400"></i> EK BİLGİ
+        </h3>
+        <div class="space-y-2 text-xs">
+          <div>
+            <div class="text-slate-400 text-[10px]">Akıntı</div>
+            <div class="font-medium" id="current-status">Hafif</div>
+          </div>
+          <div>
+            <div class="text-slate-400 text-[10px]">En Uygun Bölgeler</div>
+            <div class="font-medium text-cyan-300 text-sm" id="best-spots">Gemlik sahili, Kurşunlu, Narlı...</div>
+          </div>
+          <div>
+            <div class="text-slate-400 text-[10px]">Hedef Türler</div>
+            <div class="font-medium text-amber-300">İstavrit, Çinekop, Lüfer, Mezgit, Kefal, Mırmır</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- GENEL YORUM + TAVSİYE -->
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+      <div class="card rounded-2xl p-4 border-l-4 border-green-500">
+        <h3 class="font-semibold text-green-400 mb-1.5 text-sm flex items-center gap-1.5">
+          <i class="fas fa-check-circle"></i> GENEL YORUM
+        </h3>
+        <p class="text-xs text-slate-300 leading-relaxed" id="general-comment">Yükleniyor...</p>
+      </div>
+      <div class="card rounded-2xl p-4 border-l-4 border-amber-500">
+        <h3 class="font-semibold text-amber-400 mb-1.5 text-sm flex items-center gap-1.5">
+          <i class="fas fa-lightbulb"></i> TAVSİYE
+        </h3>
+        <p class="text-xs text-slate-300 leading-relaxed" id="tavsiye-text">Yükleniyor...</p>
+      </div>
+    </div>
+
+    </div><!-- /main-content-area -->
+
+    <!-- FOOTER -->
+    <footer class="text-center py-6 text-slate-500 text-xs">
+      <p class="mb-1">Tight Lines! 🎣</p>
+      <p>Open-Meteo + yerel balıkçılık bilgisi ile otomatik oluşturulmuştur.</p>
+      <p class="mt-2 text-cyan-400 font-semibold">Geliştirici: <span class="text-white">FishFleb</span></p>
+
+    </footer>
+  </main>
+
+  <!-- ADMIN LOGIN MODAL -->
+  <div id="admin-modal" class="fixed inset-0 bg-black/70 hidden items-center justify-center z-50 p-4">
+    <div class="card rounded-2xl p-5 w-full max-w-sm border border-slate-600">
+      <h3 class="text-lg font-bold mb-3 text-center">Yönetici Girişi</h3>
+      <div class="space-y-3">
+        <div>
+          <label class="text-xs text-slate-400">Kullanıcı Adı</label>
+          <input id="admin-user" type="text" class="w-full mt-1 px-3 py-2 rounded-lg bg-slate-800 border border-slate-600 text-white text-sm focus:outline-none focus:border-cyan-500" placeholder="FishFleb" />
+        </div>
+        <div>
+          <label class="text-xs text-slate-400">Şifre</label>
+          <input id="admin-pass" type="password" class="w-full mt-1 px-3 py-2 rounded-lg bg-slate-800 border border-slate-600 text-white text-sm focus:outline-none focus:border-cyan-500" />
+        </div>
+        <p id="admin-error" class="text-red-400 text-xs hidden">Hatalı kullanıcı adı veya şifre!</p>
+        <div class="flex gap-2 pt-1">
+          <button onclick="doAdminLogin()" class="flex-1 bg-cyan-600 hover:bg-cyan-500 text-white font-medium py-2 rounded-lg text-sm">Giriş Yap</button>
+          <button onclick="closeAdminModal()" class="flex-1 bg-slate-700 hover:bg-slate-600 text-white py-2 rounded-lg text-sm">İptal</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ADMIN PANEL -->
+  <div id="admin-panel" class="fixed bottom-0 left-0 right-0 bg-slate-900 border-t-2 border-cyan-600 p-3 hidden z-40 shadow-2xl">
+    <div class="max-w-6xl mx-auto flex flex-wrap items-center justify-between gap-3">
+      <div class="flex flex-wrap items-center gap-3">
+        <span class="text-cyan-400 font-semibold text-sm">Yönetici Modu</span>
+        <label class="flex items-center gap-2 text-sm cursor-pointer bg-slate-800 px-3 py-1.5 rounded-lg">
+          <input type="checkbox" id="site-public-toggle" class="w-4 h-4 accent-cyan-500" />
+          <span>Site herkese açık</span>
+        </label>
+      </div>
+      <div class="flex gap-2">
+        <button onclick="saveAdminEdits()" class="bg-green-600 hover:bg-green-500 text-white text-sm px-4 py-1.5 rounded-lg font-medium">
+          <i class="fas fa-save"></i> Kaydet
+        </button>
+        <button onclick="logoutAdmin()" class="bg-slate-700 hover:bg-slate-600 text-white text-sm px-3 py-1.5 rounded-lg">
+          Çıkış
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // ========== STATE ==========
+    let regions = [];
+    let currentRegionId = "gemlik";
+    let currentSpot = null;
+    let selectedDay = 0; // 0 = bugün, 1 = yarın ...
+    let adminToken = localStorage.getItem("adminToken") || null;
+    let isAdmin = false;
+
+    function toggleMenu() {
+      const dd = document.getElementById("menu-dropdown");
+      if (dd) dd.classList.toggle("hidden");
+    }
+    // Menü dışına tıklayınca kapat
+    document.addEventListener("click", (e) => {
+      const btn = document.getElementById("menu-btn");
+      const dd = document.getElementById("menu-dropdown");
+      if (!dd || !btn) return;
+      if (!btn.contains(e.target) && !dd.contains(e.target)) dd.classList.add("hidden");
+    });
+
+    function generateDayComment(bestAct, windS, waveH, hourPeak, selectedDay) {
+      const dayNames = ["Bugün", "Yarın", "Önümüzdeki 2. gün", "Önümüzdeki 3. gün", "Önümüzdeki 4. gün", "Önümüzdeki 5. gün", "Önümüzdeki 6. gün"];
+      const day = dayNames[selectedDay] || "Bu gün";
+      const peak = hourPeak.toString().padStart(2,"0") + ":00";
+      let comment = "";
+      let advice = "";
+
+      if (bestAct.text === "İyi") {
+        comment = day + " için balık aktivitesi iyi görünüyor. En verimli dilim yaklaşık " + peak + " civarı. ";
+        if (windS <= 18 && parseFloat(waveH) < 0.7) {
+          comment += "Rüzgar ve dalga av için uygun seviyede.";
+        } else if (windS > 22) {
+          comment += "Rüzgar biraz yüksek olabilir, kıyıya yakın veya rüzgar altı noktaları tercih edin.";
+        } else {
+          comment += "Deniz şartları genel olarak idare eder.";
+        }
+        advice = "LRF için hafif takım ve yavaş sunum; spin için 7-18g aralığı deneyin. " + peak + " civarına odaklanın. Sabah erken veya akşamüstü de denenebilir.";
+      } else if (bestAct.text === "Orta") {
+        comment = day + " orta seviye bir gün. En iyi pencere " + peak + " civarı. ";
+        if (parseFloat(waveH) > 0.8) {
+          comment += "Dalga biraz yüksek — sakin koy ve mendirek içi daha verimli olabilir.";
+        } else {
+          comment += "Sabırlı av ve doğru nokta seçimi fark yaratır.";
+        }
+        advice = "Önce sakin bölgelerde LRF ile dene, aktivite artarsa spin’e geç. Yem rengini su rengine göre ayarla (bulanıksa chartreuse/pembe).";
+      } else {
+        comment = day + " aktivite zayıf görünüyor. Yine de " + peak + " dilimi nispeten daha iyi. ";
+        if (windS > 25 || parseFloat(waveH) > 1.2) {
+          comment += "Rüzgar/dalga avı zorlaştırabilir — güvenlik önce.";
+        } else {
+          comment += "Kısa deneme veya farklı mera denemek mantıklı olabilir.";
+        }
+        advice = "Zor günde ince ayar önemli: daha yavaş retrieve, doğal renkler, sığ ve korunaklı noktalar. Uzun süre aynı yerde kalmayın.";
+      }
+      return { comment, advice };
+    }
+
+    // ========== YARDIMCI ==========
+    function windDirToText(deg) {
+      if (deg == null) return "—";
+      const dirs = ["Kuzey (N)", "Kuzeydoğu (NE)", "Doğu (E)", "Güneydoğu (SE)", "Güney (S)", "Güneybatı (SW)", "Batı (W)", "Kuzeybatı (NW)"];
+      return dirs[Math.round(deg / 45) % 8];
+    }
+    function weatherCodeToEmoji(code) {
+      if (code === 0) return "☀️";
+      if (code <= 3) return "⛅";
+      if (code <= 48) return "🌫️";
+      if (code <= 67) return "🌧️";
+      if (code <= 77) return "🌨️";
+      return "⛈️";
+    }
+    function weatherCodeToText(code) {
+      if (code === 0) return "Açık ve Güneşli";
+      if (code <= 3) return "Parçalı Bulutlu";
+      if (code <= 48) return "Sisli";
+      if (code <= 67) return "Yağmurlu";
+      return "Fırtınalı";
+    }
+    function calcActivity(hour, pressure, windSpeed, wave) {
+      let score = 50;
+      if ((hour >= 6 && hour <= 10) || (hour >= 17 && hour <= 21)) score += 30;
+      else if (hour >= 11 && hour <= 16) score += 5;
+      else score -= 10;
+      if (pressure >= 1015 && pressure <= 1025) score += 10;
+      else if (pressure > 1025) score -= 5;
+      if (windSpeed >= 5 && windSpeed <= 18) score += 15;
+      else if (windSpeed > 25) score -= 20;
+      if (wave < 0.4) score += 15;
+      else if (wave > 1.0) score -= 25;
+      // 1 balık = düşük, 2 = orta, 3 = iyi
+      if (score >= 75) return { level: "🐟🐟🐟", cls: "activity-yuksek", text: "İyi" };
+      if (score >= 50) return { level: "🐟🐟", cls: "activity-orta", text: "Orta" };
+      return { level: "🐟", cls: "activity-dusuk", text: "Zayıf" };
+    }
+    function getMoonPhase() {
+      const now = new Date();
+      let year = now.getFullYear(), month = now.getMonth() + 1, day = now.getDate();
+      if (month < 3) { year--; month += 12; }
+      ++month;
+      let c = 365.25 * year, e = 30.6 * month;
+      let jd = c + e + day - 694039.09;
+      jd /= 29.5305882;
+      let b = parseInt(jd); jd -= b; b = Math.round(jd * 8);
+      if (b >= 8) b = 0;
+      const phases = ["Yeni Ay", "Hilal", "İlk Dördün", "Şişkin Ay", "Dolunay", "Şişkin Ay", "Son Dördün", "Hilal"];
+      return `${phases[b]} %${Math.round(jd * 100)}`;
+    }
+
+    // Fallback veri
+    const fallback = {
+      current: { temperature_2m: 24.5, relative_humidity_2m: 62, apparent_temperature: 25.8, weather_code: 2, pressure_msl: 1016.2, wind_speed_10m: 12, wind_direction_10m: 45 },
+      daily: { sunrise: ["2026-09-25T06:42"], sunset: ["2026-09-25T18:51"], uv_index_max: [6.2] },
+      hourly: {
+        temperature_2m: [22,21,20,20,21,22,24,26,27,28,29,29,28,27,26,25,24,23,22,21,21,20,20,20],
+        apparent_temperature: [23,22,21,21,22,23,25,27,28,30,31,31,30,29,28,27,26,25,24,23,22,21,21,21],
+        precipitation_probability: Array(24).fill(0),
+        weather_code: [1,1,1,1,1,0,0,1,2,2,2,2,1,1,1,1,1,1,0,0,0,1,1,1],
+        pressure_msl: Array(24).fill(1016),
+        wind_speed_10m: [8,7,6,6,7,8,9,11,13,14,15,16,15,14,13,12,11,10,9,8,8,7,7,6],
+        wind_direction_10m: Array(24).fill(45)
+      },
+      marine: { current: { wave_height: 0.25, sea_surface_temperature: 22.2, ocean_current_velocity: 0.4 }, hourly: { wave_height: Array(24).fill(0.3) } }
+    };
+
+    // ========== LOKASYONLAR ==========
+    async function loadLocations() {
+      try {
+        const res = await fetch("/api/locations");
+        const data = await res.json();
+        regions = data.regions || [];
+      } catch (e) {
+        // Fallback hardcode
+        regions = [
+          { id: "gemlik", name: "GEMLİK", lat: 40.43, lon: 29.15, spots: [
+            { id: "gemlik-sahil", name: "Gemlik Sahili", lat: 40.43, lon: 29.15, note: "Liman ve sahil" },
+            { id: "manastir", name: "Manastır", lat: 40.425, lon: 29.14, note: "LRF mırmır" },
+            { id: "kursunlu", name: "Kurşunlu", lat: 40.39, lon: 29.04, note: "Sakin koy" },
+            { id: "narli", name: "Narlı", lat: 40.47, lon: 29.08, note: "Kayalık" },
+            { id: "kumyaka", name: "Kumyaka", lat: 40.38, lon: 28.92, note: "Sahil" },
+            { id: "karacaali", name: "Karacaali", lat: 40.41, lon: 29.10, note: "Sakin" },
+            { id: "kumla", name: "Kumla", lat: 40.40, lon: 29.12, note: "Kumlu sahil" }
+          ]},
+          { id: "mudanya", name: "MUDANYA", lat: 40.375, lon: 28.882, spots: [
+            { id: "mudanya-iskele", name: "Mudanya İskele", lat: 40.375, lon: 28.882, note: "İskele" },
+            { id: "guzelyali", name: "Güzelyalı", lat: 40.36, lon: 28.90, note: "Kayalık" },
+            { id: "trilye", name: "Trilye", lat: 40.39, lon: 28.80, note: "Gece avı" },
+            { id: "budo", name: "Budo Civarı", lat: 40.37, lon: 28.87, note: "Spin" },
+            { id: "kumsaz", name: "Kumsaz", lat: 40.35, lon: 28.85, note: "Plaj / koy" }
+          ]},
+          { id: "armutlu", name: "ARMUTLU", lat: 40.52, lon: 28.83, spots: [
+            { id: "armutlu-liman", name: "Armutlu Liman", lat: 40.52, lon: 28.83, note: "Barınak" },
+            { id: "fistikli", name: "Fıstıklı", lat: 40.50, lon: 28.86, note: "Barınak" }
+          ]}
+        ];
+      }
+      renderRegionButtons();
+      selectRegion(currentRegionId);
+    }
+
+    function renderRegionButtons() {
+      const container = document.getElementById("region-buttons");
+      container.innerHTML = "";
+      regions.forEach(r => {
+        const btn = document.createElement("button");
+        btn.className = `region-btn px-3 py-1.5 rounded-lg text-sm font-medium ${r.id === currentRegionId ? "active bg-cyan-700 text-white" : "bg-slate-700 hover:bg-slate-600"}`;
+        btn.textContent = r.name;
+        btn.onclick = () => selectRegion(r.id);
+        container.appendChild(btn);
+      });
+    }
+
+    function renderDateButtons() {
+      const container = document.getElementById("date-buttons");
+      if (!container) return;
+      container.innerHTML = "";
+      const days = ["Bugün", "Yarın", "+2 Gün", "+3 Gün", "+4 Gün", "+5 Gün", "+6 Gün"];
+      const now = new Date();
+      days.forEach((label, i) => {
+        const d = new Date(now);
+        d.setDate(d.getDate() + i);
+        const dateStr = d.toLocaleDateString("tr-TR", { day: "numeric", month: "short" });
+        const btn = document.createElement("button");
+        btn.className = `date-btn px-3 py-1.5 rounded-lg text-xs ${i === selectedDay ? "active bg-amber-600 text-white" : "bg-slate-700 hover:bg-slate-600"}`;
+        btn.innerHTML = `<div class="font-medium">${label}</div><div class="text-[10px] opacity-80">${dateStr}</div>`;
+        btn.onclick = () => {
+          selectedDay = i;
+          document.querySelectorAll(".date-btn").forEach(b => {
+            b.classList.remove("active", "bg-amber-600", "text-white");
+            b.classList.add("bg-slate-700");
+          });
+          btn.classList.add("active", "bg-amber-600", "text-white");
+          btn.classList.remove("bg-slate-700");
+          if (currentSpot) {
+            const region = regions.find(r => r.id === currentRegionId);
+            loadWeather(currentSpot.lat, currentSpot.lon, region?.name || "", currentSpot.name, currentSpot.note);
+          }
+        };
+        container.appendChild(btn);
+      });
+    }
+
+    function selectRegion(regionId) {
+      currentRegionId = regionId;
+      const region = regions.find(r => r.id === regionId);
+      if (!region) return;
+      renderRegionButtons();
+      renderDateButtons();
+      // Spot butonları
+      const spotContainer = document.getElementById("spot-buttons");
+      spotContainer.innerHTML = "";
+      region.spots.forEach((s, i) => {
+        const btn = document.createElement("button");
+        btn.className = `spot-btn px-3 py-1.5 rounded-lg text-xs ${i === 0 ? "active" : "bg-slate-700 hover:bg-slate-600"}`;
+        btn.textContent = s.name;
+        btn.onclick = () => {
+          document.querySelectorAll(".spot-btn").forEach(b => b.classList.remove("active"));
+          btn.classList.add("active");
+          currentSpot = s;
+          loadWeather(s.lat, s.lon, region.name, s.name, s.note);
+        };
+        spotContainer.appendChild(btn);
+      });
+      // İlk spotu seç
+      if (region.spots.length) {
+        currentSpot = region.spots[0];
+        loadWeather(region.spots[0].lat, region.spots[0].lon, region.name, region.spots[0].name, region.spots[0].note);
+      }
+    }
+
+    // ========== HAVA YÜKLE ==========
+    async function loadWeather(lat, lon, regionName, spotName, note) {
+      document.getElementById("location-name").textContent = spotName || regionName;
+      document.getElementById("header-loc").textContent = `${regionName} / BURSA`;
+      document.getElementById("spot-note").textContent = note || "24 Saatlik Hava, Deniz ve Balıkçılık Raporu";
+      document.getElementById("best-spots").textContent = regions.find(r => r.id === currentRegionId)?.spots.map(s => s.name).join(", ") || "—";
+
+      const now = new Date();
+      const viewDate = new Date(now);
+      viewDate.setDate(viewDate.getDate() + selectedDay);
+      document.getElementById("current-date").textContent = viewDate.toLocaleDateString("tr-TR", { day: "numeric", month: "long", year: "numeric" }).toUpperCase();
+      document.getElementById("current-day").textContent = viewDate.toLocaleDateString("tr-TR", { weekday: "long" }).toUpperCase();
+      document.getElementById("moon-phase").textContent = getMoonPhase();
+
+      let weather, marine;
+      try {
+        const wUrl = `https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&current=temperature_2m,relative_humidity_2m,apparent_temperature,weather_code,pressure_msl,wind_speed_10m,wind_direction_10m&hourly=temperature_2m,apparent_temperature,precipitation_probability,weather_code,pressure_msl,wind_speed_10m,wind_direction_10m&daily=sunrise,sunset,uv_index_max&timezone=Europe/Istanbul&forecast_days=7`;
+        const wRes = await fetch(wUrl);
+        if (!wRes.ok) throw new Error("limit");
+        weather = await wRes.json();
+
+        const mUrl = `https://marine-api.open-meteo.com/v1/marine?latitude=${lat}&longitude=${lon}&current=wave_height,sea_surface_temperature,ocean_current_velocity&hourly=wave_height&timezone=Europe/Istanbul&forecast_days=7`;
+        const mRes = await fetch(mUrl);
+        if (!mRes.ok) throw new Error("limit");
+        marine = await mRes.json();
+      } catch (e) {
+        weather = { current: fallback.current, daily: fallback.daily, hourly: fallback.hourly };
+        marine = fallback.marine;
+      }
+
+      const c = weather.current;
+      document.getElementById("temp").textContent = Math.round(c.temperature_2m) + "°C";
+      document.getElementById("weather-icon").textContent = weatherCodeToEmoji(c.weather_code);
+      document.getElementById("weather-desc").textContent = weatherCodeToText(c.weather_code);
+      document.getElementById("humidity").textContent = "%" + Math.round(c.relative_humidity_2m);
+      document.getElementById("feels-like").textContent = Math.round(c.apparent_temperature) + "°C";
+      document.getElementById("pressure").textContent = Math.round(c.pressure_msl) + " hPa";
+      document.getElementById("wind-dir").textContent = windDirToText(c.wind_direction_10m);
+      document.getElementById("wind-speed").textContent = Math.round(c.wind_speed_10m) + " km/sa";
+
+      const ws = c.wind_speed_10m;
+      let force = "Hafif";
+      if (ws > 20) force = "Orta - Kuvvetli";
+      else if (ws > 12) force = "Hafif - Orta";
+      document.getElementById("wind-force").textContent = force;
+
+      const p = c.pressure_msl;
+      let pStatus = p > 1020 ? "Yüksek Basınç" : p < 1010 ? "Düşük Basınç" : "Stabil";
+      document.getElementById("pressure-status").textContent = pStatus;
+      document.getElementById("pressure-note").textContent = p > 1015 ? "Yüksek basınç aktiviteyi biraz düşürebilir, sabah daha iyi." : "Basınç av için uygun.";
+
+      const mc = marine.current || {};
+      const wave = mc.wave_height ?? 0.3;
+      document.getElementById("wave-height").textContent = wave.toFixed(1) + " m";
+      document.getElementById("sea-temp").textContent = (mc.sea_surface_temperature ?? 22).toFixed(1) + "°C";
+      document.getElementById("wave-status").textContent = wave > 1.5 ? "(Dalgalı)" : wave > 0.7 ? "(Orta)" : "(Sakin)";
+      document.getElementById("current-status").textContent = (mc.ocean_current_velocity ?? 0.4) < 1 ? "Hafif" : "Orta";
+
+      if (weather.daily) {
+        const di = Math.min(selectedDay, (weather.daily.sunrise?.length || 1) - 1);
+        document.getElementById("sunrise").textContent = weather.daily.sunrise[di].split("T")[1].slice(0,5);
+        document.getElementById("sunset").textContent = weather.daily.sunset[di].split("T")[1].slice(0,5);
+        const uv = weather.daily.uv_index_max?.[di] ?? 5;
+        document.getElementById("uv").textContent = Number(uv).toFixed(0) + (uv > 7 ? " (Yüksek)" : "");
+      }
+
+      const temps = weather.hourly.temperature_2m.slice(0,24);
+      document.getElementById("temp-max").textContent = Math.round(Math.max(...temps)) + "°C";
+      document.getElementById("temp-min").textContent = Math.round(Math.min(...temps)) + "°C";
+      document.getElementById("precip").textContent = "%" + (weather.hourly.precipitation_probability?.[12] ?? 5);
+
+      const mainAct = calcActivity(9, p, ws, wave);
+      const actEl = document.getElementById("fish-activity-main");
+      actEl.innerHTML = "Balık Aktivitesi: <span class=\"text-base\">" + mainAct.level + "</span> (" + mainAct.text + ")";
+      actEl.className = "mt-2 p-2 rounded-lg text-center font-medium text-xs " + mainAct.cls;
+
+      document.getElementById("wind-note").textContent = `${windDirToText(c.wind_direction_10m)} yönünden esiyor, deniz sakin, av için ideal.`;
+
+      // Saatlik tablo - seçilen güne göre (selectedDay)
+      const tbody = document.getElementById("hourly-body");
+      tbody.innerHTML = "";
+      let bestScore = -1;
+      let bestHour = 6;
+      let bestAct = { level: "🐟🐟", text: "Orta" };
+      const dayOffset = selectedDay * 24;
+      for (let h = 0; h < 24; h++) {
+        const idx = dayOffset + h;
+        const t = weather.hourly.temperature_2m[idx] ?? weather.hourly.temperature_2m[h];
+        const windS = weather.hourly.wind_speed_10m[idx] ?? weather.hourly.wind_speed_10m[h];
+        const windD = weather.hourly.wind_direction_10m[idx] ?? weather.hourly.wind_direction_10m[h];
+        const press = weather.hourly.pressure_msl[idx] ?? weather.hourly.pressure_msl[h];
+        const wcode = weather.hourly.weather_code[idx] ?? weather.hourly.weather_code[h];
+        const waveRaw = marine.hourly?.wave_height?.[idx] ?? marine.hourly?.wave_height?.[h] ?? wave;
+        const waveH = Number(waveRaw).toFixed(1);
+        const act = calcActivity(h, press, windS, parseFloat(waveH));
+        let score = 50;
+        if ((h >= 6 && h <= 10) || (h >= 17 && h <= 21)) score += 30;
+        else if (h >= 11 && h <= 16) score += 5; else score -= 10;
+        if (press >= 1015 && press <= 1025) score += 10;
+        if (windS >= 5 && windS <= 18) score += 15;
+        if (parseFloat(waveH) < 0.4) score += 15;
+        if (score > bestScore) { bestScore = score; bestHour = h; bestAct = act; }
+
+        const nextH = (h + 1) % 24;
+        const timeLabel = h.toString().padStart(2,"0") + ":00-" + nextH.toString().padStart(2,"0") + ":00";
+        const tr = document.createElement("tr");
+        tr.className = "table-row";
+        // Bugün seçiliyse şu anki saati sarı vurgula
+        const nowHour = new Date().getHours();
+        if (selectedDay === 0 && h === nowHour) {
+          tr.classList.add("current-hour-row");
+        }
+        tr.innerHTML = `
+          <td class="px-3 py-2 font-medium whitespace-nowrap">${timeLabel}</td>
+          <td class="px-2 py-2 text-center text-lg">${weatherCodeToEmoji(wcode)}</td>
+          <td class="px-2 py-2 text-center">${Math.round(t)}°C</td>
+          <td class="px-2 py-2 text-center">${windDirToText(windD).split(" ")[0]}</td>
+          <td class="px-2 py-2 text-center">${Math.round(windS)} km/s</td>
+          <td class="px-2 py-2 text-center">${waveH} m</td>
+          <td class="px-3 py-2 text-center">
+            <span class="text-base" title="${act.text}">${act.level}</span>
+          </td>
+        `;
+        tbody.appendChild(tr);
+      }
+      // En verimli saat (seçilen gün için)
+      const nextBest = (bestHour + 1) % 24;
+      const peakLabel = bestHour.toString().padStart(2,"0") + ":00 - " + nextBest.toString().padStart(2,"0") + ":00";
+      document.getElementById("peak-hour").textContent = peakLabel;
+      document.getElementById("peak-fish").textContent = bestAct.level;
+      const dayNames = ["Bugün", "Yarın", "+2 gün", "+3 gün", "+4 gün", "+5 gün", "+6 gün"];
+      document.getElementById("peak-note").textContent = (dayNames[selectedDay] || "") + " • " + bestAct.text + " aktivite • Canlı tahmine göre";
+
+      // Güne özel yorum ve tavsiye
+      const midIdx = dayOffset + 12;
+      const midWind = weather.hourly.wind_speed_10m[midIdx] ?? weather.hourly.wind_speed_10m[12] ?? 10;
+      const midWave = (marine.hourly?.wave_height?.[midIdx] ?? marine.hourly?.wave_height?.[12] ?? wave);
+      const dayTexts = generateDayComment(bestAct, midWind, midWave, bestHour, selectedDay);
+      const gc = document.getElementById("general-comment");
+      const tv = document.getElementById("tavsiye-text");
+      if (gc && !( !sitePublic && !isAdmin )) {
+        gc.textContent = dayTexts.comment;
+        gc.dataset.orig = dayTexts.comment;
+      }
+      if (tv && !( !sitePublic && !isAdmin )) {
+        tv.textContent = dayTexts.advice;
+        tv.dataset.orig = dayTexts.advice;
+      }
+      // En verimli zamanlar metni de güncelle
+      const bh = document.getElementById("best-hours");
+      if (bh) bh.textContent = peakLabel + " (en yüksek) · sabah 06-10 / akşam 17-21";
+
+      // Üst özet kartları da seçilen güne göre (öğlen civarı)
+      const mid = dayOffset + 12;
+      const cTemp = weather.hourly.temperature_2m[mid] ?? weather.current?.temperature_2m;
+      const cWind = weather.hourly.wind_speed_10m[mid] ?? weather.current?.wind_speed_10m;
+      const cDir = weather.hourly.wind_direction_10m[mid] ?? weather.current?.wind_direction_10m;
+      const cPress = weather.hourly.pressure_msl[mid] ?? weather.current?.pressure_msl;
+      const cCode = weather.hourly.weather_code[mid] ?? weather.current?.weather_code;
+      if (cTemp != null) document.getElementById("temp").textContent = Math.round(cTemp) + "°C";
+      if (cCode != null) {
+        document.getElementById("weather-icon").textContent = weatherCodeToEmoji(cCode);
+        document.getElementById("weather-desc").textContent = weatherCodeToText(cCode);
+      }
+      if (cWind != null) document.getElementById("wind-speed").textContent = Math.round(cWind) + " km/sa";
+      if (cDir != null) document.getElementById("wind-dir").textContent = windDirToText(cDir);
+      if (cPress != null) document.getElementById("pressure").textContent = Math.round(cPress) + " hPa";
+    }
+
+    // ========== İÇERİK (sunucudan) ==========
+    let sitePublic = true;
+
+    function applyVisibility() {
+      // Kapalı + yönetici değilse verileri tire yap
+      const mask = !sitePublic && !isAdmin;
+      const ids = [
+        "temp","weather-desc","temp-max","temp-min","humidity","precip",
+        "pressure","pressure-status","pressure-note","fish-activity-main",
+        "wind-dir","wind-speed","wind-force","wave-height","wave-status","wind-note",
+        "feels-like","sea-temp","uv","sunrise","sunset","moon-phase",
+        "peak-hour","peak-fish","peak-note","best-hours","best-spots",
+        "current-status","general-comment","tavsiye-text"
+      ];
+      ids.forEach(id => {
+        const el = document.getElementById(id);
+        if (!el) return;
+        if (mask) {
+          if (!el.dataset.orig) el.dataset.orig = el.innerHTML || el.textContent;
+          el.textContent = "—";
+        } else if (el.dataset.orig) {
+          el.innerHTML = el.dataset.orig;
+          delete el.dataset.orig;
+        }
+      });
+      // Saatlik tablo
+      const tbody = document.getElementById("hourly-body");
+      if (tbody) {
+        if (mask) {
+          tbody.innerHTML = '<tr><td colspan="7" class="px-4 py-6 text-center text-slate-500">Veriler kapalı</td></tr>';
+        }
+        // mask false iken normal loadWeather zaten tabloyu doldurur
+      }
+      // LRF / Spin listeleri
+      ["lrf-list","spin-list"].forEach(id => {
+        const ul = document.getElementById(id);
+        if (!ul) return;
+        if (mask) {
+          if (!ul.dataset.orig) ul.dataset.orig = ul.innerHTML;
+          ul.innerHTML = '<li class="text-slate-500">—</li>';
+        } else if (ul.dataset.orig) {
+          ul.innerHTML = ul.dataset.orig;
+          delete ul.dataset.orig;
+        }
+      });
+      // Kapalıyken küçük uyarı
+      let banner = document.getElementById("private-banner");
+      if (mask) {
+        if (!banner) {
+          banner = document.createElement("div");
+          banner.id = "private-banner";
+          banner.className = "bg-slate-800 text-slate-400 text-xs text-center py-2 border-b border-slate-700";
+          banner.textContent = "Site şu an kapalı — veriler gizli";
+          document.querySelector("header")?.after(banner);
+        }
+      } else if (banner) {
+        banner.remove();
+      }
+    }
+
+    async function loadContent() {
+      try {
+        const res = await fetch("/api/content");
+        const data = await res.json();
+        sitePublic = data.sitePublic !== false;
+        const toggle = document.getElementById("site-public-toggle");
+        if (toggle) toggle.checked = sitePublic;
+        applyVisibility();
+        if (data.generalComment) document.getElementById("general-comment").textContent = data.generalComment;
+        if (data.tavsiye) document.getElementById("tavsiye-text").textContent = data.tavsiye;
+        if (data.bestHours) document.getElementById("best-hours").textContent = data.bestHours;
+        if (data.lrfRecommendations && data.lrfRecommendations.length) {
+          const ul = document.getElementById("lrf-list");
+          if (ul) ul.innerHTML = data.lrfRecommendations.map(t => `<li class="flex gap-1.5"><span class="text-cyan-400">✓</span> ${t}</li>`).join("");
+        }
+        if (data.spinRecommendations && data.spinRecommendations.length) {
+          const ul = document.getElementById("spin-list");
+          if (ul) ul.innerHTML = data.spinRecommendations.map(t => `<li class="flex gap-1.5"><span class="text-orange-400">✓</span> ${t}</li>`).join("");
+        }
+      } catch (e) {
+        sitePublic = true;
+        applyVisibility();
+        document.getElementById("general-comment").textContent = "Yüksek basınç etkisiyle hava stabil. Sabah ve akşam saatleri en verimli zamanlar.";
+        document.getElementById("tavsiye-text").textContent = "Sabah erken veya akşamüstü avı tercih edin.";
+      }
+    }
+
+    // ========== ADMIN ==========
+    function toggleAdminLogin() {
+      const modal = document.getElementById("admin-modal");
+      modal.classList.remove("hidden");
+      modal.classList.add("flex");
+      document.getElementById("admin-error").classList.add("hidden");
+    }
+    function closeAdminModal() {
+      document.getElementById("admin-modal").classList.add("hidden");
+      document.getElementById("admin-modal").classList.remove("flex");
+    }
+
+    async function doAdminLogin() {
+      const username = document.getElementById("admin-user").value.trim();
+      const password = document.getElementById("admin-pass").value;
+      try {
+        const res = await fetch("/api/admin/login", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ username, password })
+        });
+        const data = await res.json();
+        if (data.success) {
+          adminToken = data.token;
+          localStorage.setItem("adminToken", adminToken);
+          isAdmin = true;
+          closeAdminModal();
+          enableEditMode();
+          document.getElementById("admin-panel").classList.remove("hidden");
+          applyVisibility();
+          const toggle = document.getElementById("site-public-toggle");
+          if (toggle) toggle.checked = sitePublic;
+          if (currentSpot) {
+            const region = regions.find(r => r.id === currentRegionId);
+            loadWeather(currentSpot.lat, currentSpot.lon, region?.name || "", currentSpot.name, currentSpot.note);
+          }
+          alert("Hoş geldin FishFleb!\nAlttaki anahtarla siteyi açıp kapatabilirsin. Kaydetmeyi unutma.");
+        } else {
+          document.getElementById("admin-error").classList.remove("hidden");
+        }
+      } catch (e) {
+        // Offline fallback (local)
+        if (username === "FishFleb" && password === "BursaLRF2026") {
+          isAdmin = true;
+          localStorage.setItem("adminToken", "local");
+          closeAdminModal();
+          enableEditMode();
+          document.getElementById("admin-panel").classList.remove("hidden");
+          alert("Yerel modda giriş yapıldı (sunucu yok).");
+        } else {
+          document.getElementById("admin-error").classList.remove("hidden");
+        }
+      }
+    }
+
+    async function logoutAdmin() {
+      try { await fetch("/api/admin/logout", { method: "POST" }); } catch(e) {}
+      adminToken = null;
+      localStorage.removeItem("adminToken");
+      isAdmin = false;
+      disableEditMode();
+      document.getElementById("admin-panel").classList.add("hidden");
+      applyVisibility();
+    }
+
+    function enableEditMode() {
+      ["general-comment", "tavsiye-text", "best-hours"].forEach(id => {
+        const el = document.getElementById(id);
+        if (el) {
+          el.contentEditable = "true";
+          el.classList.add("outline", "outline-cyan-500", "rounded", "px-1");
+        }
+      });
+      const ul = document.getElementById("lrf-list");
+      if (ul) {
+        ul.contentEditable = "true";
+        ul.classList.add("outline", "outline-cyan-500", "rounded", "p-1");
+      }
+      const spinUl = document.getElementById("spin-list");
+      if (spinUl) {
+        spinUl.contentEditable = "true";
+        spinUl.classList.add("outline", "outline-cyan-500", "rounded", "p-1");
+      }
+    }
+    function disableEditMode() {
+      document.querySelectorAll("[contenteditable=true]").forEach(el => {
+        el.contentEditable = "false";
+        el.classList.remove("outline", "outline-cyan-500", "rounded", "px-1", "p-1");
+      });
+    }
+
+    async function saveAdminEdits() {
+      const lrfItems = [...document.querySelectorAll("#lrf-list li")].map(li => li.textContent.replace(/^✓\s*/, "").trim());
+      const spinItems = [...document.querySelectorAll("#spin-list li")].map(li => li.textContent.replace(/^✓\s*/, "").trim());
+      const pubToggle = document.getElementById("site-public-toggle");
+      sitePublic = pubToggle ? pubToggle.checked : true;
+      const body = {
+        sitePublic: sitePublic,
+        generalComment: document.getElementById("general-comment").innerText,
+        tavsiye: document.getElementById("tavsiye-text").innerText,
+        bestHours: document.getElementById("best-hours").innerText,
+        lrfRecommendations: lrfItems,
+        spinRecommendations: spinItems
+      };
+      try {
+        const res = await fetch("/api/content", {
+          method: "PUT",
+          headers: {
+            "Content-Type": "application/json",
+            "x-admin-token": adminToken || ""
+          },
+          body: JSON.stringify(body)
+        });
+        const data = await res.json();
+        if (data.success) {
+          applyVisibility();
+          // Açıldıysa verileri yeniden çek
+          if (sitePublic || isAdmin) {
+            if (currentSpot) {
+              const region = regions.find(r => r.id === currentRegionId);
+              loadWeather(currentSpot.lat, currentSpot.lon, region?.name || "", currentSpot.name, currentSpot.note);
+            }
+          }
+          alert(sitePublic ? "Kaydedildi. Site herkese açık." : "Kaydedildi. Site kapalı — başkaları veri göremez.");
+        } else {
+          alert("Hata: " + (data.message || "Yetkisiz"));
+        }
+      } catch (e) {
+        // local fallback
+        localStorage.setItem("balikCustomData", JSON.stringify(body));
+        alert("Yerel olarak kaydedildi (sunucu bağlantısı yok).");
+      }
+    }
+
+    // ========== BAŞLAT ==========
+    document.addEventListener("DOMContentLoaded", async () => {
+      await loadLocations();
+      await loadContent();
+      // Token varsa kontrol et
+      if (adminToken) {
+        try {
+          const res = await fetch("/api/admin/check", { headers: { "x-admin-token": adminToken } });
+          const data = await res.json();
+          if (data.isAdmin) {
+            isAdmin = true;
+            document.getElementById("admin-panel").classList.remove("hidden");
+            enableEditMode();
+          }
+        } catch (e) {
+          if (adminToken === "local") {
+            isAdmin = true;
+            document.getElementById("admin-panel").classList.remove("hidden");
+            enableEditMode();
+          }
+        }
+      }
+    });
+  </script>
+</body>
+</html>
