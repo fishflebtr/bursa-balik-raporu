@@ -1,0 +1,12 @@
+{
+  "name": "bursa-balik-raporu",
+  "version": "1.0.0",
+  "description": "Bursa LRF & Spin Balıkçılık Raporu - FishFleb",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js"
+  },
+  "engines": {
+    "node": ">=18"
+  }
+}
