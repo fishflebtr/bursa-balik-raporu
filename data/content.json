@@ -1,1 +1,22 @@
-
+{
+  "sitePublic": true,
+  "generalComment": "Yüksek basınç etkisiyle hava stabil. Rüzgar ve dalga durumuna göre sabah erken ile akşamüstü en verimli saatler. LRF ve spin için ayrı takım önerilerine bakın.",
+  "tavsiye": "Bu akşam veya yarın sabah gitmeyi düşünüyorsanız saatlik tabloya bakın. 1 balık = zayıf, 2 balık = orta, 3 balık = iyi aktivite. Rüzgar ve dalgayı da birlikte değerlendirin.",
+  "bestHours": "06:00-10:00 / 17:00-21:00",
+  "lrfRecommendations": [
+    "Gramaj: 0.5g - 5g jighead / 1-7g metal jig",
+    "Silikon: 2-5 cm (Ecogear, Keitech, Bait Breath tarzı)",
+    "Renk: Beyaz, chartreuse, pembe, doğal kefal, şeffaf",
+    "Teknik: Yavaş sarsıntılı çekiş, dip ve orta su tarama",
+    "Hedef: İstavrit, mırmır, mezgit, küçük lüfer, çinekop"
+  ],
+  "spinRecommendations": [
+    "Gramaj: 7g - 21g (kıyı), 14g - 28g (açık / rüzgarlı)",
+    "Sahte: 7-12 cm minnow, twichbait, metal jig, soft jerkbait",
+    "Renk: Doğal (sardalya, kefal), mavi-gümüş, pembe, chartreuse",
+    "Teknik: Orta-hızlı retrieve, stop&go, twich",
+    "Hedef: Lüfer, çinekop, levrek, palamut (mevsimine göre)"
+  ],
+  "updatedAt": null,
+  "updatedBy": "FishFleb"
+}
